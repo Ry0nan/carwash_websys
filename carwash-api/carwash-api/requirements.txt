@@ -1,0 +1,16 @@
+PHP >= 8.2
+Composer >= 2.5
+MySQL >= 8.0
+
+Required PHP extensions:
+- OpenSSL
+- PDO
+- Mbstring
+- Tokenizer
+- XML
+- Ctype
+- JSON
+- BCMath
+
+To install project dependencies, run:
+composer install

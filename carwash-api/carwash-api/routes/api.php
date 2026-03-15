@@ -6,7 +6,17 @@ use App\Http\Controllers\Api\JobOrderController;
 use App\Http\Controllers\Api\ReportController;
 use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\VehicleController;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Route;
+
+Route::get('/health', function () {
+    return response()->json([
+        'status' => 'ok',
+        'app' => config('app.name'),
+        'database' => DB::connection()->getDatabaseName(),
+        'timestamp' => now()->toIso8601String(),
+    ]);
+});
 
 // Public auth routes.
 Route::middleware('web')->prefix('auth')->group(function () {

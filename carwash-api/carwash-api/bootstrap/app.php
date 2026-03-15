@@ -10,18 +10,17 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
         apiPrefix: 'api',
     )
-    ->withMiddleware(function (Middleware $middleware) {
+        ->withMiddleware(function (Middleware $middleware) {
 
-        $middleware->trustProxies(at: '*');
+    // CSRF exception for API routes
+    $middleware->validateCsrfTokens(except: [
+        'api/*'
+    ]);
 
-        $middleware->validateCsrfTokens(except: [
-            'api/*',
-        ]);
-
-        $middleware->alias([
-            'admin.auth' => AdminAuth::class,
-        ]);
-    })
+    $middleware->alias([
+        'admin.auth' => AdminAuth::class,
+    ]);
+})
 
     //    ->withMiddleware(function (Middleware $middleware) {
     // Named middleware used by the API routes.

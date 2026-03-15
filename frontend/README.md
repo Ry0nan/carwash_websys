@@ -12,7 +12,9 @@ python3 -m http.server 5173
 
 Then open `http://127.0.0.1:5173`.
 
-By default API base is `http://127.0.0.1:8000/api`, but you can change it in the login panel.
+By default the frontend uses `${window.location.origin}/api` when served over HTTP(S).
+
+For local split development, you can still point it to `http://127.0.0.1:8000/api` in the login panel.
 
 ## Features
 
@@ -26,5 +28,4 @@ By default API base is `http://127.0.0.1:8000/api`, but you can change it in the
 
 ## Deployment note
 
-For a single machine/XAMPP setup, serve `frontend/` as static files and run Laravel API locally.
-For multi-computer use, host frontend and backend on Railway or similar, then point API Base URL to deployed backend.
+For Render submission hosting, deploy the Laravel app as the primary web service and use the frontend already in `carwash-api/carwash-api/public` so the UI and API share one origin.

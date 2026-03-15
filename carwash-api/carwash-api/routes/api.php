@@ -8,6 +8,13 @@ use App\Http\Controllers\Api\ServiceController;
 use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
 
+Route::get('/health', function () {
+    return response()->json([
+        'success' => true,
+        'message' => 'OK',
+    ]);
+});
+
 // Public auth routes.
 Route::middleware('web')->prefix('auth')->group(function () {
     Route::post('/login',  [AuthController::class, 'login']);

@@ -1,0 +1,60 @@
+services:
+  - type: web
+    name: carwash-websys
+    runtime: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /api/health
+    autoDeployTrigger: commit
+    buildFilter:
+      paths:
+        - Dockerfile
+        - render.yaml
+        - frontend/**
+        - carwash-api/carwash-api/**
+    envVars:
+      - key: APP_ENV
+        value: production
+      - key: APP_DEBUG
+        value: "false"
+      - key: APP_KEY
+        sync: false
+      - key: DB_CONNECTION
+        value: pgsql
+      - key: DB_HOST
+        fromDatabase:
+          name: carwash-websys-db
+          property: host
+      - key: DB_PORT
+        fromDatabase:
+          name: carwash-websys-db
+          property: port
+      - key: DB_DATABASE
+        fromDatabase:
+          name: carwash-websys-db
+          property: database
+      - key: DB_USERNAME
+        fromDatabase:
+          name: carwash-websys-db
+          property: user
+      - key: DB_PASSWORD
+        fromDatabase:
+          name: carwash-websys-db
+          property: password
+      - key: SESSION_DRIVER
+        value: database
+      - key: SESSION_SECURE_COOKIE
+        value: "true"
+      - key: SESSION_SAME_SITE
+        value: lax
+      - key: CACHE_STORE
+        value: database
+      - key: QUEUE_CONNECTION
+        value: sync
+
+databases:
+  - name: carwash-websys-db
+    plan: free
+    region: singapore

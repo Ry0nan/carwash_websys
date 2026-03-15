@@ -1,0 +1,8 @@
+.git
+.gitignore
+carwash-api-old/
+carwash-api-old-folder/
+carwash-api/carwash-api/vendor/
+carwash-api/carwash-api/node_modules/
+carwash-api/carwash-api/storage/logs/
+carwash-api/carwash-api/bootstrap/cache/*.php

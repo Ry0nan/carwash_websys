@@ -1,56 +1,179 @@
 # Render Deployment Guide
 
-This repo is ready to deploy on Render as a single Docker web service plus one Render Postgres database.
+This repository is set up to deploy on Render as:
 
-## What gets deployed
+- 1 Docker web service
+- 1 Render Postgres database
+
+The deployment uses the Laravel app in `carwash-api/carwash-api` and serves the browser UI from Laravel `public/`, so the frontend and backend stay on one origin and session login works cleanly.
+
+## What Render will deploy
 
 - Active backend: `carwash-api/carwash-api`
-- Active browser UI: `carwash-api/carwash-api/public`
-- Ignored legacy folder: `carwash-api-old`
+- Active frontend used in production: `carwash-api/carwash-api/public`
+- Legacy folder to ignore: `carwash-api-old`
+- Local-only static copy: `frontend/`
 
-This setup keeps the frontend and backend on the same Render origin, so the Laravel session cookie works without cross-site cookie workarounds.
+## Files already prepared in this repo
 
-## Why Docker on Render
+- [render.yaml](/d:/Web_Projects/carwash_websys/render.yaml)
+- [Dockerfile](/d:/Web_Projects/carwash_websys/Dockerfile)
+- [.dockerignore](/d:/Web_Projects/carwash_websys/.dockerignore)
 
-Render's current native runtimes do not include PHP, so this project uses a Docker-based web service instead.
+## Before you start
 
-Official docs:
-- https://render.com/docs/docker
-- https://render.com/docs/blueprint-spec
-- https://render.com/docs/monorepo-support
+You need:
 
-## Before first deploy
+1. A GitHub, GitLab, or Bitbucket repository containing this project.
+2. A Render account.
+3. An `APP_KEY` for Laravel.
 
-Generate an application key locally and keep it ready for Render:
+## How to generate `APP_KEY`
+
+If PHP is installed on your machine, run:
 
 ```bash
 cd carwash-api/carwash-api
 php artisan key:generate --show
 ```
 
-Copy the full output, including the `base64:` prefix.
+Copy the full output, including `base64:`.
 
-## Deploy with Blueprint
+If PHP is not installed locally, you can generate a 32-byte base64 key and store it as:
 
-1. Push this repo to GitHub, GitLab, or Bitbucket.
-2. In Render, create a new Blueprint from the repo.
-3. Render will detect `render.yaml` and propose:
-   - Web service: `carwash-websys`
-   - Postgres database: `carwash-websys-db`
-4. When prompted for `APP_KEY`, paste the generated key.
-5. Complete the Blueprint deploy.
+```text
+base64:YOUR_GENERATED_VALUE
+```
 
-## After deploy
+## Recommended deployment method: Blueprint
 
-The web service will:
+Use the repository directly through Render Blueprint because this repo already has `render.yaml`.
 
-- build from `Dockerfile`
-- run `php artisan migrate --force --seed` when the container starts
-- serve the UI and API from the same domain
+### Step 1: Push the repo
 
-Open the service URL in Render. The frontend will call `/api` on the same origin automatically.
+Commit your latest changes and push the project to your Git provider.
 
-## Important notes
+### Step 2: Create a new Blueprint in Render
 
-- If you want to keep using the separate `frontend/` folder for local experiments, it now defaults to same-origin `/api` and still allows manual override in the UI.
-- For submission, the Render deployment should use the Laravel `public/` frontend because that is the frontend served by the Docker web service.
+In Render:
+
+1. Click `New +`
+2. Choose `Blueprint`
+3. Connect your repository
+4. Select this project repository
+
+Render will detect [render.yaml](/d:/Web_Projects/carwash_websys/render.yaml).
+
+### Step 3: Confirm the services
+
+Render should create:
+
+- Web service: `carwash-websys`
+- Postgres database: `carwash-websys-db`
+
+### Step 4: Set the missing secret
+
+When Render asks for environment values, set:
+
+- `APP_KEY` = your generated Laravel key
+
+The other database and runtime values are already declared in `render.yaml`.
+
+### Step 5: Deploy
+
+Start the Blueprint deploy.
+
+Render will:
+
+- build the Docker image from [Dockerfile](/d:/Web_Projects/carwash_websys/Dockerfile)
+- provision Postgres
+- start the container
+- run `php artisan migrate --force --seed` during container startup
+
+## What happens during startup
+
+The container command is defined in [Dockerfile](/d:/Web_Projects/carwash_websys/Dockerfile#L49):
+
+```sh
+php artisan migrate --force --seed && apache2-foreground
+```
+
+That means on startup it will:
+
+1. run migrations
+2. run seeders
+3. start Apache
+
+## Default seeded login
+
+The seeders create this admin account:
+
+- Email: `admin@carwash.local`
+- Password: `Admin@1234`
+
+You can verify that in:
+
+- [AdminSeeder.php](/d:/Web_Projects/carwash_websys/carwash-api/carwash-api/database/seeders/AdminSeeder.php)
+
+## After deployment
+
+Open your Render web service URL.
+
+Expected behavior:
+
+- the homepage loads from Laravel `public/`
+- frontend requests go to `/api`
+- login uses Laravel session cookies
+- authenticated actions should work without setting a separate frontend URL
+
+## Basic post-deploy checks
+
+After Render finishes, test these in order:
+
+1. Open the app URL in the browser.
+2. Confirm the page loads normally.
+3. Log in with:
+   - `admin@carwash.local`
+   - `Admin@1234`
+4. Open the browser dev tools network tab.
+5. Confirm requests go to the same domain under `/api/...`.
+6. Confirm `/api/health` returns success.
+7. Try creating:
+   - one customer
+   - one vehicle
+   - one job order
+8. Open dashboard, orders, and reports pages to confirm data loads.
+
+## If Render build fails
+
+Check these first:
+
+- `APP_KEY` is set
+- Render created the Postgres database
+- the repo includes the latest migration fixes
+- the service is using the root [Dockerfile](/d:/Web_Projects/carwash_websys/Dockerfile)
+
+## If the app opens but login or data fails
+
+Check:
+
+- network requests are going to `/api`
+- the database migration completed
+- the admin seeder ran
+- the browser is not using an old `apiBase` value saved in localStorage
+
+If needed, clear localStorage for the site and reload.
+
+## Important submission note
+
+For submission, use the deployed Render URL from the Laravel app, not the separate `frontend/` folder.
+The Render deployment serves the production frontend from `carwash-api/carwash-api/public`.
+
+## Quick summary
+
+1. Push repo.
+2. Create Render Blueprint from repo.
+3. Set `APP_KEY`.
+4. Deploy.
+5. Open the Render URL.
+6. Log in with the seeded admin account.

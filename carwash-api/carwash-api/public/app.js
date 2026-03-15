@@ -1,5 +1,13 @@
+function resolveDefaultApiBase() {
+  if (window.location.protocol === 'file:') {
+    return 'http://127.0.0.1:8000/api';
+  }
+
+  return `${window.location.origin}/api`;
+}
+
 const state = {
-  apiBase: localStorage.getItem('apiBase') || `${window.location.origin}/api`,
+  apiBase: localStorage.getItem('apiBase') || resolveDefaultApiBase(),
   authUser: null,
   customers: { page: 1, lastPage: 1 },
   vehicles: { page: 1, lastPage: 1 },

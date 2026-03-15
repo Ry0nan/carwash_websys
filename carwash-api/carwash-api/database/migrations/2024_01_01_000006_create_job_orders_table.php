@@ -14,7 +14,7 @@ return new class extends Migration
             $table->unsignedBigInteger('vehicle_id');
             $table->string('washboy_name', 100)->nullable();
             $table->enum('payment_mode', ['CASH', 'GCASH', 'CARD', 'UNPAID'])->nullable();
-            $table->enum('status', ['OPEN', 'IN_PROGRESS', 'DONE', 'CANCELLED'])->default('OPEN');
+            $table->enum('status', ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'CANCELLED'])->default('PENDING');
             $table->tinyInteger('leave_vehicle')->default(0);
             $table->tinyInteger('waiver_accepted')->default(0);
             $table->dateTime('waiver_accepted_at')->nullable();

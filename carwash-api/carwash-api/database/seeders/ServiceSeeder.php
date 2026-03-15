@@ -2,6 +2,7 @@
 
 namespace Database\Seeders;
 
+use App\Models\Service;
 use Illuminate\Database\Seeder;
 use Illuminate\Support\Facades\DB;
 
@@ -21,22 +22,22 @@ class ServiceSeeder extends Seeder
         ];
 
         foreach ($motorServices as $svc) {
-            $existing = DB::table('services')
-                ->where('service_name', $svc['service_name'])
-                ->first();
-
-            if ($existing) {
-                $serviceId = $existing->service_id;
-            } else {
-                $serviceId = DB::table('services')->insertGetId([
-                    'service_name'     => $svc['service_name'],
+            $service = Service::query()->firstOrCreate(
+                ['service_name' => $svc['service_name']],
+                [
                     'vehicle_category' => 'MOTOR',
                     'service_group'    => $svc['service_group'],
                     'is_active'        => 1,
-                    'created_at'       => now(),
-                    'updated_at'       => now(),
-                ]);
-            }
+                ]
+            );
+
+            $service->forceFill([
+                'vehicle_category' => 'MOTOR',
+                'service_group'    => $svc['service_group'],
+                'is_active'        => 1,
+            ])->save();
+
+            $serviceId = $service->service_id;
 
             // Fixed price — vehicle_size is NULL for motor
             DB::table('service_pricing')->updateOrInsert(
@@ -68,22 +69,22 @@ class ServiceSeeder extends Seeder
         $sizes = ['SMALL', 'MEDIUM', 'LARGE', 'XL'];
 
         foreach ($carServices as $svc) {
-            $existing = DB::table('services')
-                ->where('service_name', $svc['service_name'])
-                ->first();
-
-            if ($existing) {
-                $serviceId = $existing->service_id;
-            } else {
-                $serviceId = DB::table('services')->insertGetId([
-                    'service_name'     => $svc['service_name'],
+            $service = Service::query()->firstOrCreate(
+                ['service_name' => $svc['service_name']],
+                [
                     'vehicle_category' => 'CAR',
                     'service_group'    => $svc['service_group'],
                     'is_active'        => 1,
-                    'created_at'       => now(),
-                    'updated_at'       => now(),
-                ]);
-            }
+                ]
+            );
+
+            $service->forceFill([
+                'vehicle_category' => 'CAR',
+                'service_group'    => $svc['service_group'],
+                'is_active'        => 1,
+            ])->save();
+
+            $serviceId = $service->service_id;
 
             foreach ($sizes as $size) {
                 DB::table('service_pricing')->updateOrInsert(

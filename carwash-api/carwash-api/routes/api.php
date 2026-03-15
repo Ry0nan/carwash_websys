@@ -9,14 +9,14 @@ use App\Http\Controllers\Api\VehicleController;
 use Illuminate\Support\Facades\Route;
 
 // Public auth routes.
-Route::prefix('auth')->group(function () {
+Route::middleware('web')->prefix('auth')->group(function () {
     Route::post('/login',  [AuthController::class, 'login']);
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('admin.auth');
     Route::get('/me',      [AuthController::class, 'me'])->middleware('admin.auth');
 });
 
 // Everything below here requires an authenticated admin session.
-Route::middleware('admin.auth')->group(function () {
+Route::middleware(['web','admin.auth'])->group(function () {
 
     // Customers.
     Route::get('/customers',     [CustomerController::class, 'index']);

@@ -43,7 +43,7 @@ class CustomerController extends Controller
     {
         $validator = Validator::make($request->all(), [
             'full_name'      => 'required|string|max:100',
-            'contact_number' => 'required|string|max:20',
+            'contact_number' => ['required','regex:/^[0-9]{11}$/'],
         ]);
 
         if ($validator->fails()) {
@@ -86,7 +86,7 @@ class CustomerController extends Controller
 
         $validator = Validator::make($request->all(), [
             'full_name'      => 'sometimes|string|max:100',
-            'contact_number' => 'sometimes|string|max:20',
+            'contact_number' => ['sometimes','regex:/^[0-9]{11}$/'],
         ]);
 
         if ($validator->fails()) {

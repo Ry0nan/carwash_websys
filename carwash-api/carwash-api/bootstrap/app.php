@@ -10,15 +10,32 @@ return Application::configure(basePath: dirname(__DIR__))
         api: __DIR__ . '/../routes/api.php',
         apiPrefix: 'api',
     )
-    ->withMiddleware(function (Middleware $middleware) {
-        // Named middleware used by the API routes.
-        $middleware->alias([
-            'admin.auth' => AdminAuth::class,
-        ]);
+        ->withMiddleware(function (Middleware $middleware) {
 
-        // If you're behind a reverse proxy, you may need to enable this.
-        // $middleware->trustProxies(at: '*');
-    })
+    // CSRF exception for API routes
+    $middleware->validateCsrfTokens(except: [
+        'api/*'
+    ]);
+
+    $middleware->alias([
+        'admin.auth' => AdminAuth::class,
+    ]);
+})
+
+    //    ->withMiddleware(function (Middleware $middleware) {
+    // Named middleware used by the API routes.
+//    $middleware->alias([
+//        'admin.auth' => AdminAuth::class,
+//    ]);
+
+//    $middleware->validateCsrfTokens(except: [
+//        'api/auth/login',
+//        'api/auth/logout',
+//    ]);
+
+    // If you're behind a reverse proxy, you may need to enable this.
+    // $middleware->trustProxies(at: '*');
+//})
     ->withExceptions(function (Exceptions $exceptions) {
         // Keep API errors consistently JSON-shaped.
         $exceptions->render(function (\Illuminate\Validation\ValidationException $e, $request) {

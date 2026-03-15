@@ -20,16 +20,19 @@ class VehicleController extends Controller
         if ($search = $request->query('search')) {
             $query->where(function ($q) use ($search) {
                 $q->where('plate_number', 'LIKE', "%{$search}%")
-                  ->orWhereHas('customer', function ($cq) use ($search) {
-                      $cq->where('full_name', 'LIKE', "%{$search}%")
-                         ->orWhere('contact_number', 'LIKE', "%{$search}%");
-                  });
+                ->orWhereHas('customer', function ($cq) use ($search) {
+                    $cq->where('full_name', 'LIKE', "%{$search}%")
+                        ->orWhere('contact_number', 'LIKE', "%{$search}%");
+                });
             });
         }
 
         $vehicles = $query->orderBy('plate_number')->paginate(20);
 
-        return response()->json(['success' => true, 'data' => $vehicles]);
+        return response()->json([
+            'success' => true,
+            'data' => $vehicles,
+        ]);
     }
 
     /**
@@ -42,6 +45,7 @@ class VehicleController extends Controller
             'plate_number'     => 'required|string|max:20|unique:vehicles,plate_number',
             'vehicle_category' => 'required|in:CAR,MOTOR',
             'vehicle_size'     => 'nullable|in:SMALL,MEDIUM,LARGE,XL',
+            'vehicle_type'     => 'nullable|string|max:50',
         ]);
 
         if ($validator->fails()) {
@@ -68,6 +72,7 @@ class VehicleController extends Controller
             'plate_number'     => strtoupper($request->plate_number),
             'vehicle_category' => $category,
             'vehicle_size'     => $size,
+            'vehicle_type'     => $request->vehicle_type
         ]);
 
         return response()->json([
@@ -113,7 +118,7 @@ class VehicleController extends Controller
             return response()->json(['success' => false, 'errors' => $validator->errors()], 422);
         }
 
-        $data = $request->only(['customer_id', 'plate_number', 'vehicle_category', 'vehicle_size']);
+        $data = $request->only(['customer_id', 'plate_number', 'vehicle_category', 'vehicle_size', 'vehicle_type']);
 
         if (isset($data['plate_number'])) {
             $data['plate_number'] = strtoupper($data['plate_number']);

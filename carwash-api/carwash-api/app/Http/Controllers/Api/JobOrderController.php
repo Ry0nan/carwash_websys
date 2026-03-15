@@ -135,7 +135,7 @@ class JobOrderController extends Controller
                 'vehicle_id'         => $vehicle->vehicle_id,
                 'washboy_name'       => $request->washboy_name,
                 'payment_mode'       => $request->payment_mode,
-                'status'             => 'OPEN',
+                'status'             => 'PENDING',
                 'leave_vehicle'      => $leaveVehicle,
                 'waiver_accepted'    => $waiverAccepted,
                 'waiver_accepted_at' => $waiverAccepted ? $request->waiver_accepted_at : null,
@@ -179,7 +179,7 @@ class JobOrderController extends Controller
         $validator = Validator::make($request->all(), [
             'washboy_name'       => 'nullable|string|max:100',
             'payment_mode'       => 'nullable|in:CASH,GCASH,CARD,UNPAID',
-            'status'             => 'nullable|in:OPEN,IN_PROGRESS,DONE,CANCELLED',
+            'status'             => 'nullable|in:PENDING,IN_PROGRESS,COMPLETED,CANCELLED',
             'leave_vehicle'      => 'boolean',
             'waiver_accepted'    => 'boolean',
             'waiver_accepted_at' => 'nullable|date',

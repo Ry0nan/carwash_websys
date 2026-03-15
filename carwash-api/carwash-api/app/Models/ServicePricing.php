@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ServicePricing extends Model
 {
+    protected $table = 'service_pricing';
     protected $primaryKey = 'pricing_id';
 
     protected $fillable = [

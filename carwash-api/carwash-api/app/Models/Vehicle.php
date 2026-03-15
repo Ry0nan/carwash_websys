@@ -15,6 +15,7 @@ class Vehicle extends Model
         'plate_number',
         'vehicle_category',
         'vehicle_size',
+        'vehicle_type',
     ];
 
     public function customer(): BelongsTo
